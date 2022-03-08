@@ -5,10 +5,12 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
 	  <DockerDefaultTargetOs>Linux</DockerDefaultTargetOs>
+	  <UserSecretsId>cdd3ddf9-ce34-477b-9f36-86fa1843aa32</UserSecretsId>
+	  <DockerfileContext>..\..</DockerfileContext>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dapr.AspNetCore"/>
+    <PackageReference Include="Dapr.AspNetCore" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
   </ItemGroup>
