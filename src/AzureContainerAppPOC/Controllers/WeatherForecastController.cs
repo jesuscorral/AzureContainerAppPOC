@@ -1,3 +1,4 @@
+using Dapr.Client;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AzureContainerAppPOC.Controllers;
@@ -12,21 +13,46 @@ public class WeatherForecastController : ControllerBase
     };
 
     private readonly ILogger<WeatherForecastController> _logger;
+    private readonly DaprClient _daprClient;
 
-    public WeatherForecastController(ILogger<WeatherForecastController> logger)
+    public WeatherForecastController(ILogger<WeatherForecastController> logger,
+        DaprClient darpClient)
     {
-        _logger = logger;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _daprClient = darpClient ?? throw new ArgumentNullException(nameof(darpClient));
     }
 
     [HttpGet(Name = "GetWeatherForecast")]
-    public IEnumerable<WeatherForecast> Get()
+    public async Task<IEnumerable<WeatherForecast>> Get()
     {
-        return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        var gRPCPort = Environment.GetEnvironmentVariable("DAPR_GRPC_PORT");
+        var daprHttpPort = Environment.GetEnvironmentVariable("DAPR_HTTP_PORT");
+
+        var (forecast, etag) = await _daprClient
+            .GetStateAndETagAsync<IEnumerable<WeatherForecast>>(storeName: "statestore", key: "forecast");
+
+        if (forecast is null)
         {
-            Date = DateTime.Now.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-        })
-        .ToArray();
+            forecast = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            {
+                Date = DateTime.Now.AddDays(index),
+                TemperatureC = Random.Shared.Next(-20, 55),
+                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
+            }).ToArray();
+
+            await _daprClient.TrySaveStateAsync(
+                storeName: "statestore",
+                key: "forecastv1",
+                value: forecast,
+                etag: etag,
+                metadata: new Dictionary<string, string>()
+                {
+                    { "ttlInSeconds", "30" }
+                });
+        }
+
+        return forecast;
+       
+
     }
 }
