@@ -1,0 +1,25 @@
+name: Build
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+jobs:
+  build:
+    env:
+      BUILD_CONFIG: Release
+    name: Build and Push
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v1
+    - name: Setup .NET Core SDK
+      uses: actions/setup-dotnet@v1.8.1
+      with:
+        dotnet-version: 6.0.200
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build AzureContainerAppPOC.sln -c $BUILD_CONFIG
+   
