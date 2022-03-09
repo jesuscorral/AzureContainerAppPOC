@@ -31,7 +31,7 @@ jobs:
       uses: docker/build-push-action@v2.9.0
       with:
         context: .
-        file: ./src/AzureContainerAppPOC/DockerFile
+        file: ./src/AzureContainerAppPOC/Dockerfile
         push: true
         tags: jesuscorral/azcontainersapps:${{ github.sha }}
    
