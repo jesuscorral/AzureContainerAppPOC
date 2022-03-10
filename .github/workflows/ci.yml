@@ -33,5 +33,5 @@ jobs:
         context: .
         file: ./src/AzureContainerAppPOC/Dockerfile
         push: true
-        tags: jesuscorral/azcontainersapps:${{ github.sha }}
+        tags: jesuscorral/azcontainersapps:001
    
